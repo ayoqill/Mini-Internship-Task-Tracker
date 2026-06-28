@@ -33,6 +33,11 @@ The purpose is to understand Vue basics first:
 
 # Main Vue Concepts Learned
 
+Parent gives data to child = props
+Child sends action to parent = emits
+
+----------------
+
 1. ref()
 
 ref() is used to store data that can change.
