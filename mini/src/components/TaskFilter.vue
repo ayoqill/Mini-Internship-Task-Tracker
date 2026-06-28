@@ -1,8 +1,23 @@
 <script setup>
-// Receive current filter from App.vue
+// Receive data from App.vue
 defineProps({
   currentFilter: {
     type: String,
+    required: true
+  },
+
+  total: {
+    type: Number,
+    required: true
+  },
+
+  completed: {
+    type: Number,
+    required: true
+  },
+
+  pending: {
+    type: Number,
     required: true
   }
 })
@@ -17,36 +32,50 @@ function setFilter(filterName) {
 </script>
 
 <template>
-  <div class="filter-row">
-    <button
-      :class="{ active: currentFilter === 'all' }"
-      @click="setFilter('all')"
-    >
-      All
-    </button>
+  <div class="filter-box">
+    <!-- Task counter -->
+    <p>
+      Total: {{ total }} |
+      Completed: {{ completed }} |
+      Pending: {{ pending }}
+    </p>
 
-    <button
-      :class="{ active: currentFilter === 'completed' }"
-      @click="setFilter('completed')"
-    >
-      Completed
-    </button>
+    <!-- Filter buttons -->
+    <div class="filter-row">
+      <button
+        :class="{ active: currentFilter === 'all' }"
+        @click="setFilter('all')"
+      >
+        All
+      </button>
 
-    <button
-      :class="{ active: currentFilter === 'pending' }"
-      @click="setFilter('pending')"
-    >
-      Pending
-    </button>
+      <button
+        :class="{ active: currentFilter === 'completed' }"
+        @click="setFilter('completed')"
+      >
+        Completed
+      </button>
+
+      <button
+        :class="{ active: currentFilter === 'pending' }"
+        @click="setFilter('pending')"
+      >
+        Pending
+      </button>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.filter-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 .filter-row {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 20px;
 }
 
 button {

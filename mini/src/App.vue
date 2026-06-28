@@ -2,7 +2,7 @@
 // Import Vue features
 import { ref, computed, onMounted, watch } from 'vue'
 
-// Import child component
+// Import components
 import TaskItem from './components/TaskItem.vue'
 import TaskFilter from './components/TaskFilter.vue'
 
@@ -14,6 +14,9 @@ const tasks = ref([])
 
 // Store current selected filter
 const filter = ref('all')
+
+// Store API loading status
+const loadingApi = ref(false)
 
 // Load saved tasks when app opens
 onMounted(() => {
@@ -65,6 +68,28 @@ function changeFilter(selectedFilter) {
   filter.value = selectedFilter
 }
 
+// Load fake tasks from API
+async function loadFakeTasks() {
+  loadingApi.value = true
+
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+    const data = await response.json()
+
+    // Convert API data into our task format
+    tasks.value = data.map(item => ({
+      id: item.id,
+      title: item.title,
+      done: item.completed
+    }))
+  } catch (error) {
+    alert('Failed to load fake tasks')
+    console.log(error)
+  } finally {
+    loadingApi.value = false
+  }
+}
+
 // Return tasks based on selected filter
 const filteredTasks = computed(() => {
   if (filter.value === 'completed') {
@@ -76,6 +101,16 @@ const filteredTasks = computed(() => {
   }
 
   return tasks.value
+})
+
+// Count completed tasks
+const completedCount = computed(() => {
+  return tasks.value.filter(task => task.done).length
+})
+
+// Count pending tasks
+const pendingCount = computed(() => {
+  return tasks.value.filter(task => !task.done).length
 })
 </script>
 
@@ -96,9 +131,17 @@ const filteredTasks = computed(() => {
       </button>
     </div>
 
-    <!-- Filter buttons -->
+    <!-- Fake API button -->
+    <button class="api-btn" @click="loadFakeTasks">
+      {{ loadingApi ? 'Loading...' : 'Load Fake API Tasks' }}
+    </button>
+
+    <!-- Filter component -->
     <TaskFilter
       :current-filter="filter"
+      :total="tasks.length"
+      :completed="completedCount"
+      :pending="pendingCount"
       @change-filter="changeFilter"
     />
 
@@ -109,14 +152,6 @@ const filteredTasks = computed(() => {
 
     <!-- Task list -->
     <ul v-else class="task-list">
-      <!-- 
-        props:
-        :task="task" sends task data to TaskItem
-
-        emits:
-        @toggle-task receives event from TaskItem
-        @delete-task receives event from TaskItem
-      -->
       <TaskItem
         v-for="task in filteredTasks"
         :key="task.id"
@@ -144,7 +179,7 @@ h1 {
 .input-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 input {
@@ -156,6 +191,11 @@ button {
   padding: 10px 14px;
   cursor: pointer;
   margin-left: 6px;
+}
+
+.api-btn {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .empty {
